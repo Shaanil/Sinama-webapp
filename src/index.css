@@ -1,0 +1,44 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #121212;
+    color: white;
+}
+
+nav {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: #1f1f1f;
+}
+
+button {
+    background: #333;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #444;
+}
+
+.grid {
+    display: grid;
+    gap: 1rem;
+    padding: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+
+.details {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.details img {
+    width: 250px;
+    border-radius: 10px;
+}

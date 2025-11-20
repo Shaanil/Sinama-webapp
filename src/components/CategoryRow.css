@@ -1,0 +1,12 @@
+.category-row { padding: 1rem 2rem; }
+.category-row h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+.row-scroll-wrapper { position: relative; }
+.row-scroll { display: flex; overflow-x: auto; gap: 1rem; padding-bottom: 1rem; }
+.row-scroll::-webkit-scrollbar { display: none; }
+.scroll-btn {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(0,0,0,0.6); border: none; color: #fff;
+    font-size: 1.5rem; padding: 0.5rem; cursor: pointer; z-index: 10;
+}
+.scroll-btn.left { left: 0; }
+.scroll-btn.right { right: 0; }
