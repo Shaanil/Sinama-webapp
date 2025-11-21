@@ -1,26 +1,44 @@
 .movie-card {
     position: relative;
     min-width: 150px;
-    border-radius: 10px;
+    border-radius: 8px;
     overflow: hidden;
     cursor: pointer;
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s;
+    background: #1f1f1f;
 }
+
 .movie-card:hover {
-    transform: scale(1.1);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.7);
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+    z-index: 10;
 }
+
 .movie-card img {
     width: 100%;
     display: block;
-    border-radius: 10px;
+    border-radius: 8px;
+    transition: opacity 0.3s;
 }
+
+.movie-card:hover img {
+    opacity: 0.8;
+}
+
 .overlay {
     position: absolute;
     bottom: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.6) 50%, transparent 100%);
     width: 100%;
     color: #fff;
-    padding: 0.5rem;
+    padding: 1rem 0.5rem;
     font-size: 0.85rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.movie-card:hover .overlay {
+    opacity: 1;
 }

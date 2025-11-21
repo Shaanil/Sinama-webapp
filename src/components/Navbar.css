@@ -7,17 +7,21 @@
     position: sticky;
     top: 0;
     z-index: 1000;
-    background: rgba(18, 18, 18, 0.85); /* Semi-transparent for glass effect */
-    backdrop-filter: blur(8px);
-    transition: background 0.3s ease;
-    border-bottom: 1px solid #222;
+
+    /* Glassy effect */
+    background: rgba(20, 20, 20, 0.8);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
 /* Left side: logo */
 .navbar-left h1 {
     font-size: 1.8rem;
     font-weight: bold;
-    color: #e50914; /* Netflix red accent */
+    color: #e50914;
+    /* Netflix red accent */
     cursor: pointer;
     margin: 0;
     transition: transform 0.2s;
@@ -87,10 +91,33 @@
 
 /* Mobile responsiveness */
 @media (max-width: 768px) {
-    .search-bar input {
-        width: 120px;
+    .navbar {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
     }
+
+    .navbar-left {
+        width: 100%;
+        text-align: center;
+    }
+
+    .navbar-right {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .search-bar {
+        width: 100%;
+    }
+
+    .search-bar input {
+        width: 100%;
+        min-width: 0;
+        /* Allow shrinking */
+    }
+
     .navbar-left h1 {
-        font-size: 1.4rem;
+        font-size: 1.5rem;
     }
 }

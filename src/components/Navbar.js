@@ -1,13 +1,14 @@
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css";
 
-export default function Navbar({ setPage, onSearch }) {
+export default function Navbar() {
     const [query, setQuery] = useState("");
+    const navigate = useNavigate();
 
     const handleSearch = () => {
         if (query.trim()) {
-            onSearch(query);
-            setPage("search");
+            navigate(`/search?q=${query}`);
         }
     };
 
@@ -18,7 +19,9 @@ export default function Navbar({ setPage, onSearch }) {
     return (
         <nav className="navbar">
             <div className="navbar-left">
-                <h1 onClick={() => setPage("home")}>Sinama</h1>
+                <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <h1>Sinama</h1>
+                </Link>
             </div>
 
             <div className="navbar-right">
