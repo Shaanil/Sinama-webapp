@@ -71,6 +71,8 @@ export default function MovieDetails() {
                                 title="Video Player"
                                 frameBorder="0"
                                 allow="autoplay; fullscreen"
+                                sandbox="allow-forms allow-scripts allow-same-origin allow-presentation"
+                                referrerPolicy="no-referrer"
                                 allowFullScreen
                             ></iframe>
                         </div>

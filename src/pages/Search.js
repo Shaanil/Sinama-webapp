@@ -8,10 +8,8 @@ export default function Search() {
     const query = searchParams.get("q") || "";
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [inputValue, setInputValue] = useState(query);
 
     useEffect(() => {
-        setInputValue(query);
         if (query) {
             search(query);
         } else {
@@ -35,23 +33,9 @@ export default function Search() {
         }
     }
 
-    const handleSearch = (e) => {
-        if (e.key === "Enter" && inputValue.trim()) {
-            setSearchParams({ q: inputValue });
-        }
-    };
-
     return (
         <div className="search-page">
-            <div className="search-bar">
-                <input
-                    placeholder="Search movies..."
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onKeyDown={handleSearch}
-                />
-                <button onClick={() => inputValue.trim() && setSearchParams({ q: inputValue })}>Search</button>
-            </div>
+            {query && <h2 style={{ marginBottom: '1rem' }}>Results for: "{query}"</h2>}
 
             {loading && <LoadingSpinner text="Searching..." />}
 
