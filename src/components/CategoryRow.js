@@ -21,7 +21,7 @@ export default function CategoryRow({ title, endpoint }) {
             <div className="row-scroll-wrapper">
                 <button className="scroll-btn left" onClick={() => scroll("left")}>◀</button>
                 <div className="row-scroll" ref={scrollRef}>
-                    {movies.map(movie => <MovieCard key={movie.id} movie={movie} />)}
+                    {movies.map(movie => <MovieCard key={movie.id} movie={movie} type={endpoint.includes("/tv") || endpoint.includes("tv") ? "tv" : "movie"} />)}
                 </div>
                 <button className="scroll-btn right" onClick={() => scroll("right")}>▶</button>
             </div>

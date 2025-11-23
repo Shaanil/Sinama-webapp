@@ -19,6 +19,12 @@
 }
 
 /* Left side: logo */
+.navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
 .navbar-left h1 {
     font-size: 1.8rem;
     font-weight: bold;
@@ -31,6 +37,27 @@
 
 .navbar-left h1:hover {
     transform: scale(1.05);
+}
+
+.navbar-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.navbar-links a {
+    color: #ccc;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.navbar-links a:hover {
+    color: #fff;
+}
+
+.navbar-links a.active {
+    color: #fff;
+    font-weight: 700;
 }
 
 /* Right side */
@@ -106,12 +133,18 @@
     .navbar-left {
         width: auto;
         flex-shrink: 0;
+        gap: 1rem;
     }
 
     .navbar-left h1 {
         font-size: 1.2rem;
         /* Smaller logo for mobile */
         margin-right: 0.5rem;
+    }
+
+    .navbar-links {
+        gap: 0.8rem;
+        font-size: 0.9rem;
     }
 
     .navbar-right {

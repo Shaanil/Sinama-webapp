@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./Navbar.css";
 
 export default function Navbar() {
     const [query, setQuery] = useState("");
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleSearch = () => {
         if (query.trim()) {
@@ -27,6 +28,10 @@ export default function Navbar() {
                 <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
                     <h1>Sinama</h1>
                 </Link>
+                <div className="navbar-links">
+                    <Link to="/" className={location.pathname === "/" ? "active" : ""}>Movies</Link>
+                    <Link to="/tv" className={location.pathname.startsWith("/tv") ? "active" : ""}>TV Shows</Link>
+                </div>
             </div>
 
             <div className="navbar-right">

@@ -4,7 +4,7 @@ import MovieCard from "../components/MovieCard";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 export default function Search() {
-    const [searchParams, setSearchParams] = useSearchParams();
+    const [searchParams] = useSearchParams();
     const query = searchParams.get("q") || "";
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
