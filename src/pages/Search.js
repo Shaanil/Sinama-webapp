@@ -21,10 +21,14 @@ export default function Search() {
         setLoading(true);
         try {
             const res = await fetch(
-                `https://api.themoviedb.org/3/search/movie?api_key=${process.env.REACT_APP_TMDB_KEY}&query=${q}`
+                `https://api.themoviedb.org/3/search/multi?api_key=${process.env.REACT_APP_TMDB_KEY}&query=${q}`
             );
             const data = await res.json();
-            setResults(data.results || []);
+            // Filter to only show movies and tv shows (exclude people, etc)
+            const filtered = (data.results || []).filter(
+                item => item.media_type === 'movie' || item.media_type === 'tv'
+            );
+            setResults(filtered);
         } catch (error) {
             console.error("Search failed:", error);
             setResults([]);
@@ -46,7 +50,13 @@ export default function Search() {
             )}
 
             <div className="row-scroll">
-                {results.map(m => <MovieCard key={m.id} movie={m} />)}
+                {results.map(m => (
+                    <MovieCard 
+                        key={m.id} 
+                        movie={m} 
+                        type={m.media_type || 'movie'} 
+                    />
+                ))}
             </div>
         </div>
     );
