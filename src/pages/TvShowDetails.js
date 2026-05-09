@@ -27,7 +27,7 @@ export default function TvShowDetails() {
     }, [id]);
 
     const handleWatch = () => {
-        setVideoUrl(`https://player.videasy.net/tv/${id}/1/1?autoplay=true&color=e50914`);
+        setVideoUrl(`https://www.vidking.net/embed/tv/${id}/1/8`);
     };
 
     if (!show) return <LoadingSpinner text="Loading show details..." />;
