@@ -14,6 +14,8 @@ export default function MovieDetails() {
     const [trailer, setTrailer] = useState(null);
     const [videoUrl, setVideoUrl] = useState(null);
 
+    const getVideasyMovieUrl = () => `https://player.videasy.net/movie/${id}?autoplay=true&color=ff0000`;
+
     useEffect(() => {
         fetchMovies(`/movie/${id}`).then(setMovie);
         fetchMovies(`/movie/${id}/credits`).then(data => setCast(data.cast.slice(0, 8)));
@@ -50,7 +52,7 @@ export default function MovieDetails() {
                     <p className="overview">{movie.overview}</p>
 
                     <div className="action-buttons">
-                        <button className="watch-btn" onClick={() => setVideoUrl(`https://www.vidking.net/embed/movie/${id}?autoPlay=true&color=ff0000`)}>
+                        <button className="watch-btn" onClick={() => setVideoUrl(getVideasyMovieUrl())}>
                             ▶ Watch Now
                         </button>
                         {trailer && (
