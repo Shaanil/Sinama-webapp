@@ -1,0 +1,224 @@
+/* Custom Cinematic Video Player Styles */
+/* src/components/DirectVideoPlayer.css */
+
+.custom-video-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+    user-select: none;
+}
+
+.custom-video-wrapper video {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: contain;
+}
+
+/* Controls Overlay */
+.video-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, transparent 100%);
+    padding: 2rem 1.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 10;
+}
+
+.custom-video-wrapper.show-controls .video-controls,
+.custom-video-wrapper:hover .video-controls {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Progress Slider */
+.video-progress-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.video-progress {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+    transition: height 0.1s ease;
+}
+
+.video-progress:hover {
+    height: 8px;
+}
+
+.video-progress::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #e50914;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+.video-progress::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #e50914;
+    cursor: pointer;
+}
+
+.video-progress:hover::-webkit-slider-thumb {
+    transform: scale(1.2);
+}
+
+/* Control Rows */
+.video-controls-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.controls-left, .controls-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.control-btn {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.control-btn:hover {
+    color: #e50914;
+    transform: scale(1.1);
+}
+
+.time-display {
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.05em;
+}
+
+/* Volume Slider */
+.volume-container {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.volume-slider {
+    -webkit-appearance: none;
+    width: 0;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+    opacity: 0;
+    transition: width 0.3s ease, opacity 0.3s ease;
+}
+
+.volume-container:hover .volume-slider {
+    width: 80px;
+    opacity: 1;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+}
+
+/* Quality Select Customization Integration */
+.quality-chip-group {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.quality-chip {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    border-radius: 4px;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.quality-chip:hover {
+    background: rgba(255,255,255,0.25);
+}
+
+.quality-chip.active {
+    background: #e50914;
+    border-color: #e50914;
+}
+
+/* Loader Overlay */
+.video-loading-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.5);
+    z-index: 5;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(255,255,255,0.3);
+    border-top-color: #e50914;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+/* Error Message */
+.video-error-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.8);
+    color: #e50914;
+    z-index: 6;
+    font-weight: bold;
+    padding: 2rem;
+    text-align: center;
+}

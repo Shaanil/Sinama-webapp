@@ -1,62 +1,111 @@
-/* Navbar */
+/* Navbar.css */
 .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%);
+    transition: background 0.4s ease;
+}
+
+.navbar.scrolled {
+    background: #141414;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+body.player-open .navbar {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-100%);
+}
+
+.navbar-inner {
+    width: 100%;
+    padding: 1.25rem 4rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.8rem 2rem;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-
-    /* Glassy effect */
-    background: rgba(20, 20, 20, 0.5);
-    /* More transparent */
-    backdrop-filter: blur(15px) saturate(180%);
-    -webkit-backdrop-filter: blur(15px) saturate(180%);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    /* Slightly more visible border */
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    gap: 1.5rem;
 }
 
 /* Left side: logo */
+.navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 3.5rem;
+}
+
 .navbar-left h1 {
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #e50914;
-    /* Netflix red accent */
-    cursor: pointer;
+    font-size: 2.2rem;
+    font-weight: 900;
     margin: 0;
-    transition: transform 0.2s;
+    letter-spacing: -0.03em;
+    color: #e50914;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: opacity 0.2s ease;
 }
 
 .navbar-left h1:hover {
-    transform: scale(1.05);
+    opacity: 0.8;
+}
+
+.navbar-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.navbar-links a {
+    color: #e5e5e5;
+    text-decoration: none;
+    font-weight: 400;
+    font-size: 1rem;
+    padding: 0.5rem 0;
+    transition: color 0.2s ease, font-weight 0.2s ease;
+}
+
+.navbar-links a:hover {
+    color: #b3b3b3;
+}
+
+.navbar-links a.active {
+    color: #fff;
+    font-weight: 700;
 }
 
 /* Right side */
 .navbar-right {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.5rem;
 }
 
 /* Search bar */
 .search-bar {
     display: flex;
     align-items: center;
-    background: #222;
-    border-radius: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid #fff;
+    border-radius: 0;
     overflow: hidden;
-    transition: background 0.3s;
+    transition: all 0.2s ease;
+    opacity: 0.9;
+}
+
+.search-bar:focus-within {
+    opacity: 1;
 }
 
 .search-bar input {
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0.8rem;
     border: none;
     outline: none;
-    width: 200px;
+    width: 220px;
     background: transparent;
     color: #fff;
+    font-family: inherit;
+    font-size: 0.95rem;
 }
 
 .search-bar input::placeholder {
@@ -64,99 +113,57 @@
 }
 
 .search-bar button {
-    background: #e50914;
+    background: transparent;
     border: none;
-    padding: 0.5rem 0.8rem;
-    cursor: pointer;
-    color: #fff;
-    transition: background 0.2s;
+    min-width: 36px;
+    min-height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.search-bar button:hover {
-    background: #f6121d;
-}
-
-/* Profile button */
-.profile-btn {
-    background: transparent;
-    border: none;
-    font-size: 1.5rem;
-    color: #fff;
     cursor: pointer;
-    transition: transform 0.2s;
-}
-
-.profile-btn:hover {
-    transform: scale(1.1);
+    color: #fff;
 }
 
 /* Mobile responsiveness */
 @media (max-width: 768px) {
-    .navbar {
-        flex-direction: row;
-        /* Keep side-by-side */
-        gap: 0.5rem;
-        padding: 0.8rem 1rem;
-        flex-wrap: nowrap;
+    .navbar-inner {
+        padding: 1rem 1.5rem;
+        gap: 1rem;
     }
 
     .navbar-left {
-        width: auto;
-        flex-shrink: 0;
+        gap: 1.5rem;
     }
 
     .navbar-left h1 {
-        font-size: 1.2rem;
-        /* Smaller logo for mobile */
-        margin-right: 0.5rem;
+        font-size: 1.6rem;
     }
 
-    .navbar-right {
-        width: auto;
-        flex: 1;
-        /* Take remaining space */
-        justify-content: flex-end;
+    .navbar-links {
+        gap: 1rem;
+        font-size: 0.85rem;
     }
 
     .search-bar {
-        width: auto;
-        max-width: 100%;
-        justify-content: flex-end;
         background: transparent;
-        /* Transparent when closed */
+        border-color: transparent;
     }
 
     .search-bar.open {
-        width: 100%;
-        background: #222;
-        /* Background when open */
+        background: rgba(0, 0, 0, 0.8);
+        border-color: rgba(255, 255, 255, 0.5);
     }
 
     .search-bar input {
         width: 0;
         padding: 0;
         opacity: 0;
-        transition: width 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
-        font-size: 16px;
+        transition: all 0.3s ease;
     }
 
     .search-bar.open input {
-        width: 100%;
-        padding: 0.4rem 0.8rem;
+        width: 140px;
+        padding: 0.5rem 0.8rem;
         opacity: 1;
-    }
-
-    .search-bar button {
-        padding: 0.4rem 0.8rem;
-        background: transparent;
-        /* Icon only by default */
-    }
-
-    .search-bar.open button {
-        background: #e50914;
-        /* Red background when open/searching */
     }
 }

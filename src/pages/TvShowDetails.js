@@ -4,27 +4,25 @@ import { fetchMovies, getImage } from "../api";
 import DirectVideoPlayer from "../components/DirectVideoPlayer";
 import MovieCard from "../components/MovieCard";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { hasAired } from "../utils/hasAired";
 import "./MovieDetails.css";
 
-function formatMoney(value) {
-    if (!value) return "N/A";
-    return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-        notation: "compact",
-        maximumFractionDigits: 1,
-    }).format(value);
+function formatRunTime(runtime) {
+    if (!runtime) return "N/A";
+    return `${runtime} min`;
 }
 
-export default function MovieDetails() {
+export default function TvShowDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [movie, setMovie] = useState(null);
+    const [show, setShow] = useState(null);
     const [cast, setCast] = useState([]);
-    const [credits, setCredits] = useState(null);
     const [recommendations, setRecommendations] = useState([]);
     const [trailer, setTrailer] = useState(null);
     const [videoUrl, setVideoUrl] = useState(null);
+    const [selectedSeason, setSelectedSeason] = useState(1);
+    const [selectedEpisode, setSelectedEpisode] = useState(1);
+    const [seasonDetails, setSeasonDetails] = useState(null);
     const [playerState, setPlayerState] = useState({
         loading: false,
         error: "",
@@ -40,13 +38,10 @@ export default function MovieDetails() {
     }, [videoUrl]);
 
     useEffect(() => {
-        fetchMovies(`/movie/${id}`).then(setMovie);
-        fetchMovies(`/movie/${id}/credits`).then(data => {
-            setCredits(data);
-            setCast(data.cast.slice(0, 8));
-        });
-        fetchMovies(`/movie/${id}/recommendations`).then(data => setRecommendations(data.results.slice(0, 10)));
-        fetchMovies(`/movie/${id}/videos`).then(data => {
+        fetchMovies(`/tv/${id}`).then(setShow);
+        fetchMovies(`/tv/${id}/credits`).then(data => setCast(data.cast.slice(0, 8)));
+        fetchMovies(`/tv/${id}/recommendations`).then(data => setRecommendations(data.results.slice(0, 10)));
+        fetchMovies(`/tv/${id}/videos`).then(data => {
             const yt = data.results.find(v => v.site === "YouTube" && v.type === "Trailer");
             if (yt) setTrailer(`https://www.youtube.com/embed/${yt.key}?autoplay=1`);
         });
@@ -58,26 +53,46 @@ export default function MovieDetails() {
         });
     }, [id]);
 
-    const getAdSupportedMovieUrl = () => `https://www.vidking.net/embed/movie/${id}?color=e50914&autoPlay=true`;
-    const director = credits?.crew?.find((person) => person.job === "Director");
-    const writers = credits?.crew?.filter((person) => ["Writer", "Screenplay"].includes(person.job)) || [];
-    const movieHighlights = movie ? [
-        { label: "TMDB Score", value: movie.vote_average ? `${movie.vote_average.toFixed(1)} / 10` : "N/A" },
-        { label: "Votes", value: movie.vote_count ? movie.vote_count.toLocaleString() : "N/A" },
-        { label: "Release Date", value: movie.release_date || "N/A" },
-        { label: "Runtime", value: movie.runtime ? `${movie.runtime} min` : "N/A" },
-    ] : [];
-    const movieFacts = movie ? [
-        { label: "Original Title", value: movie.original_title || movie.title || "N/A" },
-        { label: "Status", value: movie.status || "N/A" },
-        { label: "Language", value: movie.original_language?.toUpperCase() || "N/A" },
-        { label: "Budget", value: formatMoney(movie.budget) },
-        { label: "Revenue", value: formatMoney(movie.revenue) },
-        { label: "Popularity", value: movie.popularity ? movie.popularity.toFixed(0) : "N/A" },
+    useEffect(() => {
+        if (!show?.seasons?.length) return;
+
+        const firstPlayableSeason = show.seasons.find((season) => season.season_number > 0) || show.seasons[0];
+        if (firstPlayableSeason) {
+            setSelectedSeason(firstPlayableSeason.season_number);
+            setSelectedEpisode(1);
+        }
+    }, [show]);
+
+    useEffect(() => {
+        if (!id || selectedSeason === null) return;
+
+        fetchMovies(`/tv/${id}/season/${selectedSeason}`).then((data) => {
+            setSeasonDetails(data);
+            const firstPlayableEpisode = data?.episodes?.find((episode) => hasAired(episode.air_date)) || data?.episodes?.[0];
+            if (firstPlayableEpisode) {
+                setSelectedEpisode(firstPlayableEpisode.episode_number);
+            }
+        });
+    }, [id, selectedSeason]);
+
+    const playableSeasons = show?.seasons?.filter((season) => season.season_number > 0) || [];
+    const episodes = seasonDetails?.episodes || [];
+    const selectedEpisodeData = episodes.find(
+        (episode) => episode.episode_number === selectedEpisode,
+    );
+    const getAdSupportedTvUrl = () => `https://www.vidking.net/embed/tv/${id}/${selectedSeason}/${selectedEpisode}?color=e50914&autoPlay=true&nextEpisode=true&episodeSelector=true`;
+    const showFacts = show ? [
+        { label: "Original Name", value: show.original_name || show.name || "N/A" },
+        { label: "Status", value: show.status || "N/A" },
+        { label: "Seasons", value: show.number_of_seasons || "N/A" },
+        { label: "Episodes", value: show.number_of_episodes || "N/A" },
+        { label: "Language", value: show.original_language?.toUpperCase() || "N/A" },
+        { label: "Episode Length", value: formatRunTime(show.episode_run_time?.[0]) },
     ] : [];
 
-    const handleWatchNow = async () => {
-        if (!movie) return;
+    const handleWatch = async () => {
+        if (!show || !seasonDetails) return;
+        if (!selectedEpisodeData) return;
 
         setVideoUrl("scraped");
         setPlayerState({
@@ -88,12 +103,16 @@ export default function MovieDetails() {
 
         try {
             const params = new URLSearchParams({
-                type: "movie",
-                tmdbId: String(movie.id),
-                title: movie.title,
+                type: "show",
+                tmdbId: String(show.id),
+                title: show.name,
                 releaseYear: String(
-                    movie.release_date ? Number(movie.release_date.split("-")[0]) : new Date().getFullYear(),
+                    show.first_air_date ? Number(show.first_air_date.split("-")[0]) : new Date().getFullYear(),
                 ),
+                seasonNumber: String(selectedSeason),
+                seasonTmdbId: String(seasonDetails.id),
+                episodeNumber: String(selectedEpisode),
+                episodeTmdbId: String(selectedEpisodeData.id),
             });
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), SCRAPE_TIMEOUT_MS);
@@ -109,7 +128,7 @@ export default function MovieDetails() {
             }
 
             if (!response.ok) {
-                throw new Error(data.error || "Failed to scrape video");
+                throw new Error(data.error || "Failed to scrape episode");
             }
 
             setPlayerState({
@@ -123,45 +142,36 @@ export default function MovieDetails() {
                 error: "Free stream unavailable. Switched to ad-supported player.",
                 stream: null,
             });
-            setVideoUrl(getAdSupportedMovieUrl());
+            setVideoUrl(getAdSupportedTvUrl());
         }
     };
 
-    if (!movie) return <LoadingSpinner text="Loading movie details..." />;
+    if (!show) return <LoadingSpinner text="Loading show details..." />;
 
     return (
         <div className="movie-detail">
             {/* Hero Section */}
-            <div className="hero" style={{ backgroundImage: `url(${getImage(movie.backdrop_path, 'original')})` }}>
+            <div className="hero" style={{ backgroundImage: `url(${getImage(show.backdrop_path, 'original')})` }}>
                 <div className="hero-overlay"></div>
                 <div className="hero-content">
                     <button onClick={() => navigate(-1)} className="back-btn">← Back</button>
-                    <h1 className="movie-title">{movie.title}</h1>
+                    <h1 className="movie-title">{show.name}</h1>
 
                     <div className="movie-meta">
-                        <span className="rating">⭐ {movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}</span>
-                        <span>{movie.release_date ? movie.release_date.split('-')[0] : 'N/A'}</span>
-                        <span>{movie.runtime} min</span>
-                    </div>
-
-                    <div className="hero-stat-strip">
-                        {movieHighlights.map((item) => (
-                            <div key={item.label} className="hero-stat-card">
-                                <span>{item.label}</span>
-                                <strong>{item.value}</strong>
-                            </div>
-                        ))}
+                        <span className="rating">⭐ {show.vote_average ? show.vote_average.toFixed(1) : 'N/A'}</span>
+                        <span>{show.first_air_date ? show.first_air_date.split('-')[0] : 'N/A'}</span>
+                        <span>{show.number_of_seasons} Seasons</span>
                     </div>
 
                     <div className="genres">
-                        {movie.genres.map(g => <span key={g.id}>{g.name}</span>)}
+                        {show.genres.map(g => <span key={g.id}>{g.name}</span>)}
                     </div>
 
-                    {movie.tagline && <p className="tagline">"{movie.tagline}"</p>}
-                    <p className="overview">{movie.overview}</p>
+                    {show.tagline && <p className="tagline">"{show.tagline}"</p>}
+                    <p className="overview">{show.overview}</p>
 
                     <div className="action-buttons">
-                        <button className="watch-btn" onClick={handleWatchNow}>
+                        <button className="watch-btn" onClick={handleWatch}>
                             ▶ Watch Now
                         </button>
                         {trailer && (
@@ -177,20 +187,20 @@ export default function MovieDetails() {
                 <div className="detail-showcase">
                     <div className="detail-poster-card">
                         <img
-                            src={getImage(movie.poster_path, "w780")}
-                            alt={movie.title}
+                            src={getImage(show.poster_path, "w780")}
+                            alt={show.name}
                             className="detail-poster"
                         />
                     </div>
 
                     <div className="detail-panel">
                         <div className="detail-panel-header">
-                            <p className="section-kicker">About This Film</p>
-                            <h2>More to know before you press play</h2>
+                            <p className="section-kicker">Series Guide</p>
+                            <h2>Everything you need before the next episode</h2>
                         </div>
 
                         <div className="fact-grid">
-                            {movieFacts.map((fact) => (
+                            {showFacts.map((fact) => (
                                 <div key={fact.label} className="fact-card">
                                     <span className="fact-label">{fact.label}</span>
                                     <strong className="fact-value">{fact.value}</strong>
@@ -200,31 +210,70 @@ export default function MovieDetails() {
 
                         <div className="detail-columns">
                             <div className="detail-block">
-                                <h3>Studios</h3>
-                                <p>{movie.production_companies?.length ? movie.production_companies.map((company) => company.name).join(", ") : "No studio information available."}</p>
+                                <h3>Networks</h3>
+                                <p>{show.networks?.length ? show.networks.map((network) => network.name).join(", ") : "No network information available."}</p>
                             </div>
                             <div className="detail-block">
-                                <h3>Spoken Languages</h3>
-                                <p>{movie.spoken_languages?.length ? movie.spoken_languages.map((language) => language.english_name).join(", ") : "No language information available."}</p>
-                            </div>
-                            <div className="detail-block">
-                                <h3>Director</h3>
-                                <p>{director?.name || "No director information available."}</p>
-                            </div>
-                            <div className="detail-block">
-                                <h3>Writers</h3>
-                                <p>{writers.length ? [...new Set(writers.map((writer) => writer.name))].join(", ") : "No writer information available."}</p>
+                                <h3>Created By</h3>
+                                <p>{show.created_by?.length ? show.created_by.map((creator) => creator.name).join(", ") : "No creator information available."}</p>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <div className="season-selector">
+                    <div className="selector-group">
+                        <label htmlFor="season-select">Season</label>
+                        <select
+                            id="season-select"
+                            value={selectedSeason}
+                            onChange={(event) => setSelectedSeason(Number(event.target.value))}
+                        >
+                            {playableSeasons.map((season) => (
+                                <option key={season.id} value={season.season_number}>
+                                    {season.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="selector-group">
+                        <label htmlFor="episode-select">Episode</label>
+                        <select
+                            id="episode-select"
+                            value={selectedEpisode}
+                            onChange={(event) => setSelectedEpisode(Number(event.target.value))}
+                        >
+                            {episodes.map((episode) => (
+                                <option
+                                    key={episode.id}
+                                    value={episode.episode_number}
+                                    disabled={!hasAired(episode.air_date)}
+                                >
+                                    {`E${episode.episode_number} • ${episode.name}${hasAired(episode.air_date) ? "" : " (Unaired)"}`}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+
+                {selectedEpisodeData && (
+                    <>
+                        <p className="selected-episode-title">
+                            {`${seasonDetails?.name || `Season ${selectedSeason}`} • E${selectedEpisodeData.episode_number} • ${selectedEpisodeData.name}`}
+                        </p>
+                        {selectedEpisodeData.overview && (
+                            <p className="selected-episode-copy">{selectedEpisodeData.overview}</p>
+                        )}
+                    </>
+                )}
 
                 {videoUrl && videoUrl !== "scraped" && (
                     <div className="video-player-container">
                         <div className="video-player-header">
                             <div>
                                 <p className="player-kicker">Trailer</p>
-                                <h2>{movie.title}</h2>
+                                <h2>{show.name}</h2>
                             </div>
                             <button className="close-player" onClick={() => setVideoUrl(null)}>Close Player</button>
                         </div>
@@ -246,7 +295,7 @@ export default function MovieDetails() {
                         <div className="video-player-header">
                             <div>
                                 <p className="player-kicker">Auto Scrape</p>
-                                <h2>{movie.title}</h2>
+                                <h2>{`${show.name} • S${selectedSeason}E${selectedEpisode}`}</h2>
                             </div>
                             <button className="close-player" onClick={() => setVideoUrl(null)}>Close Player</button>
                         </div>
@@ -257,8 +306,8 @@ export default function MovieDetails() {
                             <div className="video-player-wrapper">
                                 <DirectVideoPlayer
                                     stream={playerState.stream}
-                                    poster={getImage(movie.backdrop_path, "original")}
-                                    title={movie.title}
+                                    poster={getImage(show.backdrop_path, "original")}
+                                    title={`${show.name} Episode ${selectedEpisode}`}
                                 />
                             </div>
                         )}
@@ -281,7 +330,7 @@ export default function MovieDetails() {
                     <h2>Recommended</h2>
                     <div className="row-scroll">
                         {recommendations.map(m => (
-                            <MovieCard key={m.id} movie={m} />
+                            <MovieCard key={m.id} movie={m} type="tv" />
                         ))}
                     </div>
                 </div>
