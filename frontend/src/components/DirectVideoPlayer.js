@@ -9,6 +9,12 @@ const formatTime = (timeInSeconds) => {
     return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 };
 
+const resolveApiUrl = (url) => {
+    const apiUrl = process.env.REACT_APP_API_URL || "";
+    if (!url || !apiUrl || !url.startsWith("/api/")) return url;
+    return `${apiUrl.replace(/\/$/, "")}${url}`;
+};
+
 export default function DirectVideoPlayer({ stream, poster, title }) {
     const videoRef = useRef(null);
     const wrapperRef = useRef(null);
@@ -34,9 +40,9 @@ export default function DirectVideoPlayer({ stream, poster, title }) {
     const activeUrl = useMemo(() => {
         if (!stream) return "";
         if (stream.type === "file") {
-            return stream.qualities?.[selectedQuality]?.url || stream.url;
+            return resolveApiUrl(stream.qualities?.[selectedQuality]?.url || stream.url);
         }
-        return stream.url;
+        return resolveApiUrl(stream.url);
     }, [selectedQuality, stream]);
 
     useEffect(() => {
@@ -65,10 +71,20 @@ export default function DirectVideoPlayer({ stream, poster, title }) {
             });
             hls.loadSource(activeUrl);
             hls.attachMedia(video);
+            hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+                const playPromise = video.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(() => { /* Ignore aborts */ });
+                }
+            });
         } else {
             hlsRef.current = null;
             video.src = activeUrl;
             video.onerror = () => setError(true);
+            const playPromise = video.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(() => { /* Ignore aborts */ });
+            }
         }
 
         return () => {
@@ -85,7 +101,15 @@ export default function DirectVideoPlayer({ stream, poster, title }) {
     // Media Controls Logic
     const togglePlay = () => {
         if (videoRef.current.paused) {
-            videoRef.current.play();
+            const playPromise = videoRef.current.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    // Auto-play was prevented or interrupted
+                    if (error.name !== "AbortError") {
+                        console.error("Playback error:", error);
+                    }
+                });
+            }
             setIsPlaying(true);
         } else {
             videoRef.current.pause();
@@ -170,7 +194,7 @@ export default function DirectVideoPlayer({ stream, poster, title }) {
                     <track
                         key={`${caption.id || caption.url}-${caption.language}`}
                         kind="subtitles"
-                        src={caption.url}
+                        src={resolveApiUrl(caption.url)}
                         srcLang={caption.language || "en"}
                         label={caption.label || caption.language || "Subtitle"}
                     />
