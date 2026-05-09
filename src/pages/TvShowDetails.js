@@ -76,7 +76,6 @@ export default function TvShowDetails() {
                                 title="Video Player"
                                 frameBorder="0"
                                 allow={videoUrl.includes("youtube.com") ? "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" : "autoplay; fullscreen"}
-                                sandbox={videoUrl.includes("youtube.com") ? undefined : "allow-scripts allow-same-origin allow-presentation"}
                                 referrerPolicy={videoUrl.includes("youtube.com") ? "strict-origin-when-cross-origin" : "no-referrer"}
                                 allowFullScreen
                             ></iframe>
