@@ -13,6 +13,13 @@ const SOURCE_TIMEOUT_MS = 12000;
 const { buildMediaProxyUrl } = require("./mediaProxy");
 
 let providersModulePromise;
+const isDevelopment = process.env.NODE_ENV !== "production";
+
+function logDevelopment(message) {
+    if (isDevelopment) {
+        console.log(message);
+    }
+}
 
 function getProvidersModule() {
     if (!providersModulePromise) {
@@ -210,6 +217,10 @@ async function scrapeMedia(query) {
                 errors.push({ sourceId, message: "No playable stream returned" });
                 continue;
             }
+
+            logDevelopment(
+                `[SCRAPE] Found playable ${stream.type} stream from ${sourceId} for "${media.title}"`,
+            );
 
             return {
                 sourceId,

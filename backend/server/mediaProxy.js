@@ -1,4 +1,11 @@
 const { Readable } = require("stream");
+const isDevelopment = process.env.NODE_ENV !== "production";
+
+function logDevelopment(message) {
+    if (isDevelopment) {
+        console.log(message);
+    }
+}
 
 function encodeHeaders(headers) {
     return Buffer.from(JSON.stringify(headers || {})).toString("base64url");
@@ -79,6 +86,14 @@ async function proxyMedia(req, res) {
         contentType.includes("application/vnd.apple.mpegurl") ||
         contentType.includes("application/x-mpegurl") ||
         targetUrl.includes(".m3u8");
+
+    if (response.ok) {
+        logDevelopment(
+            `[PROXY] Found upstream ${isPlaylist ? "playlist" : "media"}: ${response.status} ${response.url}`,
+        );
+    } else {
+        logDevelopment(`[PROXY] Upstream returned ${response.status}: ${response.url}`);
+    }
 
     setMediaCorsHeaders(res);
     res.status(response.status);
