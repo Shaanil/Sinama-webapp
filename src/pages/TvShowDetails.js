@@ -27,7 +27,7 @@ export default function TvShowDetails() {
     }, [id]);
 
     const handleWatch = () => {
-        setVideoUrl(`https://www.vidking.net/embed/tv/${id}/1/1?color=e50914&autoPlay=true&nextEpisode=true&episodeSelector=true`);
+        setVideoUrl(`https://player.videasy.net/tv/${id}/1/1?autoplay=true&color=e50914`);
     };
 
     if (!show) return <LoadingSpinner text="Loading show details..." />;
@@ -76,7 +76,7 @@ export default function TvShowDetails() {
                                 title="Video Player"
                                 frameBorder="0"
                                 allow={videoUrl.includes("youtube.com") ? "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" : "autoplay; fullscreen"}
-                                sandbox={videoUrl.includes("youtube.com") ? undefined : "allow-forms allow-scripts allow-same-origin allow-presentation"}
+                                sandbox={videoUrl.includes("youtube.com") ? undefined : "allow-scripts allow-same-origin allow-presentation"}
                                 referrerPolicy={videoUrl.includes("youtube.com") ? "strict-origin-when-cross-origin" : "no-referrer"}
                                 allowFullScreen
                             ></iframe>
