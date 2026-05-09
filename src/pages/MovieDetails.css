@@ -453,17 +453,39 @@
     align-items: center;
     justify-content: center;
     backdrop-filter: blur(20px);
-    animation: playerFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    
+    /* Target transform origin to approximately where the "Watch Now" button sits */
+    transform-origin: 15vw 70vh;
+    animation: playerGenieIn 0.6s cubic-bezier(0.2, 1, 0.3, 1) forwards;
 }
 
-@keyframes playerFadeIn {
+.video-player-container.closing {
+    animation: playerGenieOut 0.5s cubic-bezier(0.2, 1, 0.3, 1) forwards;
+}
+
+@keyframes playerGenieIn {
     0% {
         opacity: 0;
-        transform: scale(0.95);
+        transform: scale(0.02) perspective(1000px) rotateX(15deg) translateY(50vh);
+        border-radius: 30vw;
     }
     100% {
         opacity: 1;
-        transform: scale(1);
+        transform: scale(1) perspective(1000px) rotateX(0deg) translateY(0);
+        border-radius: 0;
+    }
+}
+
+@keyframes playerGenieOut {
+    0% {
+        opacity: 1;
+        transform: scale(1) perspective(1000px) rotateX(0deg) translateY(0);
+        border-radius: 0;
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.02) perspective(1000px) rotateX(-5deg) translateY(50vh);
+        border-radius: 30vw;
     }
 }
 

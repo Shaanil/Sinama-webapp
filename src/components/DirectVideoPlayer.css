@@ -46,43 +46,41 @@
     display: flex;
     align-items: center;
     position: relative;
+    padding: 10px 0; /* Expanded hit area */
+    cursor: pointer;
+    margin-bottom: 0.2rem;
 }
 
 .video-progress {
     -webkit-appearance: none;
     width: 100%;
-    height: 6px;
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
     outline: none;
     cursor: pointer;
-    transition: height 0.1s ease;
+    transition: height 0.2s ease;
 }
 
-.video-progress:hover {
-    height: 8px;
+.video-progress-container:hover .video-progress {
+    height: 6px;
 }
 
 .video-progress::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     background: #e50914;
     cursor: pointer;
-    transition: transform 0.1s ease;
+    opacity: 0;
+    transition: transform 0.1s ease, opacity 0.2s ease;
+    box-shadow: 0 0 10px rgba(229, 9, 20, 0.8);
 }
 
-.video-progress::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: #e50914;
-    cursor: pointer;
-}
-
-.video-progress:hover::-webkit-slider-thumb {
+.video-progress-container:hover .video-progress::-webkit-slider-thumb {
+    opacity: 1;
     transform: scale(1.2);
 }
 
@@ -103,13 +101,20 @@
     background: transparent;
     border: none;
     color: #fff;
-    font-size: 1.5rem;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0;
+    width: 32px;
+    height: 32px;
     transition: color 0.2s, transform 0.2s;
+}
+
+.control-btn svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
 }
 
 .control-btn:hover {
@@ -117,12 +122,23 @@
     transform: scale(1.1);
 }
 
+.fullscreen-btn svg {
+    width: 28px;
+    height: 28px;
+}
+
 .time-display {
     color: #fff;
     font-size: 0.95rem;
     font-weight: 500;
     font-variant-numeric: tabular-nums;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.02em;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+}
+
+.time-divider {
+    color: rgba(255, 255, 255, 0.4);
+    margin: 0 0.2rem;
 }
 
 /* Volume Slider */
@@ -132,21 +148,29 @@
     gap: 0.8rem;
 }
 
+.volume-slider-wrapper {
+    width: 0;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    overflow: hidden;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+}
+
+.volume-container:hover .volume-slider-wrapper {
+    width: 80px;
+    opacity: 1;
+}
+
 .volume-slider {
     -webkit-appearance: none;
-    width: 0;
+    width: 80px;
     height: 4px;
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 2px;
     outline: none;
     cursor: pointer;
-    opacity: 0;
-    transition: width 0.3s ease, opacity 0.3s ease;
-}
-
-.volume-container:hover .volume-slider {
-    width: 80px;
-    opacity: 1;
 }
 
 .volume-slider::-webkit-slider-thumb {
@@ -157,33 +181,37 @@
     border-radius: 50%;
     background: #fff;
     cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
 /* Quality Select Customization Integration */
 .quality-chip-group {
     display: flex;
-    gap: 0.4rem;
+    gap: 0.5rem;
+    margin-right: 0.5rem;
 }
 
 .quality-chip {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.2);
-    color: #fff;
-    border-radius: 4px;
-    padding: 0.3rem 0.6rem;
-    font-size: 0.8rem;
-    font-weight: 600;
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.6);
+    padding: 0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
     cursor: pointer;
     transition: all 0.2s;
+    letter-spacing: 0.05em;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
 }
 
 .quality-chip:hover {
-    background: rgba(255,255,255,0.25);
+    color: #fff;
 }
 
 .quality-chip.active {
-    background: #e50914;
-    border-color: #e50914;
+    color: #e50914;
+    text-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
 }
 
 /* Loader Overlay */
