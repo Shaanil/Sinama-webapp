@@ -30,7 +30,7 @@ export default function TvShowDetails() {
         error: "",
         stream: null,
     });
-    const SCRAPE_TIMEOUT_MS = 15000;
+    const SCRAPE_TIMEOUT_MS = 6000;
 
     useEffect(() => {
         document.body.classList.toggle("player-open", Boolean(videoUrl));
