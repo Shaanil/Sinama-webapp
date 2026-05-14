@@ -205,6 +205,9 @@ export default function MovieDetails() {
                                 🎬 Watch Trailer
                             </button>
                         )}
+                        <button className="storyverse-btn" onClick={() => {}}>
+                            📖 Storyverse
+                        </button>
                     </div>
                 </div>
             </div>
