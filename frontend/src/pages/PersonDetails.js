@@ -52,7 +52,9 @@ export default function PersonDetails() {
         setPerson(null);
         setCredits({ cast: [], crew: [] });
 
-        fetchMovies(`/person/${id}`).then(setPerson);
+        fetchMovies(`/person/${id}`).then((data) => {
+            setPerson(data?.id && data?.name ? data : false);
+        });
         fetchMovies(`/person/${id}/combined_credits`).then((data) => {
             setCredits({
                 cast: data.cast || [],
@@ -80,7 +82,21 @@ export default function PersonDetails() {
             .slice(0, 18);
     }, [credits]);
 
-    if (!person) return <LoadingSpinner text="Loading person details..." />;
+    if (person === null) return <LoadingSpinner text="Loading person details..." />;
+
+    if (person === false) {
+        return (
+            <div className="movie-detail person-detail">
+                <div className="person-hero">
+                    <button onClick={() => navigate(-1)} className="person-back-btn">Back</button>
+                    <div className="person-empty-state">
+                        <h1>No information</h1>
+                        <p>No information</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     const age = getAge(person.birthday, person.deathday);
     const facts = [
@@ -113,7 +129,7 @@ export default function PersonDetails() {
                         </div>
 
                         <p className="overview person-biography">
-                            {person.biography || "No biography is available from TMDB yet."}
+                            {person.biography || "No information"}
                         </p>
                     </div>
                 </div>

@@ -650,6 +650,24 @@
     color: #fff;
 }
 
+.person-empty-state {
+    width: min(1200px, 100%);
+    margin: 0 auto;
+    padding: 4rem 0 6rem;
+}
+
+.person-empty-state h1 {
+    color: #fff;
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    margin: 0 0 1rem;
+}
+
+.person-empty-state p {
+    color: #bbb;
+    font-size: 1.15rem;
+    margin: 0;
+}
+
 @media (max-width: 768px) {
     .person-detail {
         padding-top: 4.5rem;
