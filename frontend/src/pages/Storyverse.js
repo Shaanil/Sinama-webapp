@@ -1,10 +1,7 @@
 import Navbar from "../components/Navbar"
-import { useNavigate } from "react-router-dom"
 import "./Storyverse.css"
 
 export default function Storyverse() {
-    const navigate = useNavigate()
-    
     return (
         <div className="storyverse-page storyverse-construction-page">
             <Navbar />
