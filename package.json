@@ -2,15 +2,13 @@
   "name": "sinama-monorepo",
   "version": "0.1.0",
   "private": true,
-  "workspaces": [
-    "frontend",
-    "backend"
-  ],
   "scripts": {
-    "dev": "concurrently \"npm run dev --workspace=frontend\" \"npm run dev --workspace=backend\"",
-    "build": "npm run build --workspace=frontend",
-    "start": "npm run start --workspace=backend",
-    "install-all": "npm install && npm install --workspace=frontend && npm install --workspace=backend"
+    "dev": "concurrently \"npm run frontend\" \"npm run backend\"",
+    "frontend": "npm --prefix frontend run dev",
+    "backend": "npm --prefix backend run dev",
+    "build": "npm --prefix frontend run build",
+    "start": "npm --prefix backend start",
+    "install-all": "npm --prefix frontend install && npm --prefix backend install"
   },
   "devDependencies": {
     "concurrently": "^8.2.0"
