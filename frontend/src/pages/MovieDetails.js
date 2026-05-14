@@ -98,13 +98,6 @@ export default function MovieDetails() {
         })
         .then(async (response) => {
             const data = await response.json();
-            if (response.ok && data.stream) {
-                setPlayerState({
-                    loading: false,
-                    error: "",
-                    stream: data.stream,
-                });
-            }
             return { ok: response.ok, data };
         });
 
@@ -126,18 +119,12 @@ export default function MovieDetails() {
     const handleWatchNow = async () => {
         if (!movie) return;
 
-        // If we already have the stream from prefetching, just open the player
-        if (playerState.stream) {
-            setVideoUrl("scraped");
-            return;
-        }
-
         setVideoUrl("scraped");
-        setPlayerState(prev => ({
-            ...prev,
-            loading: !prev.stream, // only load if we don't have it
+        setPlayerState({
+            loading: true,
             error: "",
-        }));
+            stream: null,
+        });
 
         try {
             if (!scrapePromiseRef.current) throw new Error("Scrape not initialized");
@@ -154,8 +141,6 @@ export default function MovieDetails() {
                 stream: data.stream,
             });
         } catch (error) {
-            if (error.message === "aborted") return;
-            
             setPlayerState({
                 loading: false,
                 error: "Free stream unavailable. Switched to ad-supported player.",
@@ -170,11 +155,11 @@ export default function MovieDetails() {
         setTimeout(() => {
             setVideoUrl(null);
             setIsClosingPlayer(false);
-            setPlayerState(prev => ({
-                ...prev,
+            setPlayerState({
                 loading: false,
                 error: "",
-            }));
+                stream: null,
+            });
         }, 400); // Wait for CSS animation to finish
     };
 
@@ -220,6 +205,9 @@ export default function MovieDetails() {
                                 🎬 Watch Trailer
                             </button>
                         )}
+                        <button className="storyverse-btn" onClick={() => {}}>
+                            📖 Storyverse
+                        </button>
                     </div>
                 </div>
             </div>

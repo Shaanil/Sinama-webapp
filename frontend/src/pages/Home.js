@@ -47,12 +47,6 @@ export default function Home() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Wake up the backend (Render free tier sleeps after 15m)
-        const API_URL = process.env.REACT_APP_API_URL || "";
-        fetch(`${API_URL}/api/ping`).catch(() => {
-            console.log("Backend warming up...");
-        });
-
         fetchMovies("/trending/movie/week").then(data => {
             if (!data.results?.length) return;
             const random = data.results[Math.floor(Math.random() * data.results.length)];

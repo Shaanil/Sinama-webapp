@@ -71,20 +71,10 @@ export default function DirectVideoPlayer({ stream, poster, title }) {
             });
             hls.loadSource(activeUrl);
             hls.attachMedia(video);
-            hls.on(Hls.Events.MEDIA_ATTACHED, () => {
-                const playPromise = video.play();
-                if (playPromise !== undefined) {
-                    playPromise.catch(() => { /* Ignore aborts */ });
-                }
-            });
         } else {
             hlsRef.current = null;
             video.src = activeUrl;
             video.onerror = () => setError(true);
-            const playPromise = video.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(() => { /* Ignore aborts */ });
-            }
         }
 
         return () => {
@@ -101,15 +91,7 @@ export default function DirectVideoPlayer({ stream, poster, title }) {
     // Media Controls Logic
     const togglePlay = () => {
         if (videoRef.current.paused) {
-            const playPromise = videoRef.current.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    // Auto-play was prevented or interrupted
-                    if (error.name !== "AbortError") {
-                        console.error("Playback error:", error);
-                    }
-                });
-            }
+            videoRef.current.play();
             setIsPlaying(true);
         } else {
             videoRef.current.pause();

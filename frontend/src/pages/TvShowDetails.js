@@ -30,7 +30,7 @@ export default function TvShowDetails() {
         error: "",
         stream: null,
     });
-    const SCRAPE_TIMEOUT_MS = 6000;
+    const SCRAPE_TIMEOUT_MS = 180;
 
     useEffect(() => {
         document.body.classList.toggle("player-open", Boolean(videoUrl));
@@ -116,13 +116,6 @@ export default function TvShowDetails() {
         })
         .then(async (response) => {
             const data = await response.json();
-            if (response.ok && data.stream) {
-                setPlayerState({
-                    loading: false,
-                    error: "",
-                    stream: data.stream,
-                });
-            }
             return { ok: response.ok, data };
         });
 
@@ -144,18 +137,12 @@ export default function TvShowDetails() {
     const handleWatch = async () => {
         if (!show || !seasonDetails || !selectedEpisodeData) return;
 
-        // If we already have the stream from prefetching, just open the player
-        if (playerState.stream) {
-            setVideoUrl("scraped");
-            return;
-        }
-
         setVideoUrl("scraped");
-        setPlayerState(prev => ({
-            ...prev,
-            loading: !prev.stream,
+        setPlayerState({
+            loading: true,
             error: "",
-        }));
+            stream: null,
+        });
 
         try {
             if (!scrapePromiseRef.current) throw new Error("Scrape not initialized");
@@ -172,8 +159,6 @@ export default function TvShowDetails() {
                 stream: data.stream,
             });
         } catch (error) {
-            if (error.message === "aborted") return;
-            
             setPlayerState({
                 loading: false,
                 error: "Free stream unavailable. Switched to ad-supported player.",
@@ -188,11 +173,11 @@ export default function TvShowDetails() {
         setTimeout(() => {
             setVideoUrl(null);
             setIsClosingPlayer(false);
-            setPlayerState(prev => ({
-                ...prev,
+            setPlayerState({
                 loading: false,
                 error: "",
-            }));
+                stream: null,
+            });
         }, 400);
     };
 
