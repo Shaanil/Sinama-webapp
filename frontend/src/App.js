@@ -13,6 +13,7 @@ const Search = lazy(() => import("./pages/Search"));
 const MovieDetails = lazy(() => import("./pages/MovieDetails"));
 const Storyverse = lazy(() => import("./pages/Storyverse"));
 const TvShowDetails = lazy(() => import("./pages/TvShowDetails"));
+const PersonDetails = lazy(() => import("./pages/PersonDetails"));
 
 function App() {
     return (
@@ -28,6 +29,7 @@ function App() {
                             <Route path="/movie/:id/storyverse" element={<Storyverse />} />
                             <Route path="/movie/:id" element={<MovieDetails />} />
                             <Route path="/tv/:id" element={<TvShowDetails />} />
+                            <Route path="/person/:id" element={<PersonDetails />} />
                         </Routes>
                     </Suspense>
                 </Router>
