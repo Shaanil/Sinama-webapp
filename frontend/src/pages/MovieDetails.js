@@ -1,7 +1,6 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { fetchMovies, getImage } from "../api";
-import DirectVideoPlayer from "../components/DirectVideoPlayer";
 import MovieCard from "../components/MovieCard";
 import LoadingSpinner from "../components/LoadingSpinner";
 import "./MovieDetails.css";
@@ -25,14 +24,7 @@ export default function MovieDetails() {
     const [recommendations, setRecommendations] = useState([]);
     const [trailer, setTrailer] = useState(null);
     const [videoUrl, setVideoUrl] = useState(null);
-    const scrapePromiseRef = useRef(null);
     const [isClosingPlayer, setIsClosingPlayer] = useState(false);
-    const [playerState, setPlayerState] = useState({
-        loading: false,
-        error: "",
-        stream: null,
-    });
-    const SCRAPE_TIMEOUT_MS = 6000;
 
     useEffect(() => {
         document.body.classList.toggle("player-open", Boolean(videoUrl));
@@ -53,14 +45,9 @@ export default function MovieDetails() {
             if (yt) setTrailer(`https://www.youtube.com/embed/${yt.key}?autoplay=1`);
         });
         setVideoUrl(null);
-        setPlayerState({
-            loading: false,
-            error: "",
-            stream: null,
-        });
     }, [id]);
 
-    const getAdSupportedMovieUrl = () => `https://www.vidking.net/embed/movie/${id}?color=e50914&autoPlay=true`;
+    const getMoviePlayerUrl = () => `${(process.env.REACT_APP_PLAYER_BASE_URL || "https://vidsrc.sh").replace(/\/$/, "")}/embed/movie/${id}?autoplay=1`;
     const director = credits?.crew?.find((person) => person.job === "Director");
     const writers = credits?.crew?.filter((person) => ["Writer", "Screenplay"].includes(person.job)) || [];
     const movieHighlights = movie ? [
@@ -78,76 +65,9 @@ export default function MovieDetails() {
         { label: "Popularity", value: movie.popularity ? movie.popularity.toFixed(0) : "N/A" },
     ] : [];
 
-    useEffect(() => {
+    const handleWatchNow = () => {
         if (!movie) return;
-
-        const controller = new AbortController();
-        const params = new URLSearchParams({
-            type: "movie",
-            tmdbId: String(movie.id),
-            title: movie.title,
-            releaseYear: String(
-                movie.release_date ? Number(movie.release_date.split("-")[0]) : new Date().getFullYear(),
-            ),
-        });
-
-        const API_URL = process.env.REACT_APP_API_URL || "";
-
-        const fetchPromise = fetch(`${API_URL}/api/scrape?${params.toString()}`, {
-            signal: controller.signal,
-        })
-        .then(async (response) => {
-            const data = await response.json();
-            return { ok: response.ok, data };
-        });
-
-        const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error("Scrape Timeout")), SCRAPE_TIMEOUT_MS);
-        });
-
-        // Safely swallow unhandled rejections natively (like AbortError on unmount or network fail)
-        scrapePromiseRef.current = Promise.race([fetchPromise, timeoutPromise]).catch(err => {
-            return { ok: false, data: { error: err.name === "AbortError" ? "aborted" : err.message } };
-        });
-
-        return () => {
-            controller.abort();
-            scrapePromiseRef.current = null;
-        };
-    }, [movie]);
-
-    const handleWatchNow = async () => {
-        if (!movie) return;
-
-        setVideoUrl("scraped");
-        setPlayerState({
-            loading: true,
-            error: "",
-            stream: null,
-        });
-
-        try {
-            if (!scrapePromiseRef.current) throw new Error("Scrape not initialized");
-            
-            const { ok, data } = await scrapePromiseRef.current;
-
-            if (!ok) {
-                throw new Error(data?.error || "Failed to scrape video");
-            }
-
-            setPlayerState({
-                loading: false,
-                error: "",
-                stream: data.stream,
-            });
-        } catch (error) {
-            setPlayerState({
-                loading: false,
-                error: "Free stream unavailable. Switched to ad-supported player.",
-                stream: null,
-            });
-            setVideoUrl(getAdSupportedMovieUrl());
-        }
+        setVideoUrl(getMoviePlayerUrl());
     };
 
     const handleClosePlayer = () => {
@@ -155,11 +75,6 @@ export default function MovieDetails() {
         setTimeout(() => {
             setVideoUrl(null);
             setIsClosingPlayer(false);
-            setPlayerState({
-                loading: false,
-                error: "",
-                stream: null,
-            });
         }, 400); // Wait for CSS animation to finish
     };
 
@@ -258,11 +173,11 @@ export default function MovieDetails() {
                     </div>
                 </div>
 
-                {videoUrl && videoUrl !== "scraped" && (
+                {videoUrl && (
                     <div className={`video-player-container ${isClosingPlayer ? "closing" : ""}`}>
                         <div className="video-player-header">
                             <div>
-                                <p className="player-kicker">Trailer</p>
+                                <p className="player-kicker">{videoUrl === trailer ? "Trailer" : "Feature Film"}</p>
                                 <h2>{movie.title}</h2>
                             </div>
                             <button className="close-player" onClick={handleClosePlayer}>Close Player</button>
@@ -277,30 +192,6 @@ export default function MovieDetails() {
                                 allowFullScreen
                             />
                         </div>
-                    </div>
-                )}
-
-                {videoUrl === "scraped" && (
-                    <div className={`video-player-container ${isClosingPlayer ? "closing" : ""}`}>
-                        <div className="video-player-header">
-                            <div>
-                                <p className="player-kicker">Feature Film</p>
-                                <h2>{movie.title}</h2>
-                            </div>
-                            <button className="close-player" onClick={handleClosePlayer}>Close Player</button>
-                        </div>
-
-                        {playerState.loading && <LoadingSpinner text="Scraping playable stream..." />}
-                        {playerState.error && <p className="player-error">{playerState.error}</p>}
-                        {playerState.stream && (
-                            <div className="video-player-wrapper">
-                                <DirectVideoPlayer
-                                    stream={playerState.stream}
-                                    poster={getImage(movie.backdrop_path, "original")}
-                                    title={movie.title}
-                                />
-                            </div>
-                        )}
                     </div>
                 )}
 

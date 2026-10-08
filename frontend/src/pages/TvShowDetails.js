@@ -1,7 +1,6 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { fetchMovies, getImage } from "../api";
-import DirectVideoPlayer from "../components/DirectVideoPlayer";
 import MovieCard from "../components/MovieCard";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { hasAired } from "../utils/hasAired";
@@ -23,14 +22,7 @@ export default function TvShowDetails() {
     const [selectedSeason, setSelectedSeason] = useState(1);
     const [selectedEpisode, setSelectedEpisode] = useState(1);
     const [seasonDetails, setSeasonDetails] = useState(null);
-    const scrapePromiseRef = useRef(null);
     const [isClosingPlayer, setIsClosingPlayer] = useState(false);
-    const [playerState, setPlayerState] = useState({
-        loading: false,
-        error: "",
-        stream: null,
-    });
-    const SCRAPE_TIMEOUT_MS = 180;
 
     useEffect(() => {
         document.body.classList.toggle("player-open", Boolean(videoUrl));
@@ -48,11 +40,6 @@ export default function TvShowDetails() {
             if (yt) setTrailer(`https://www.youtube.com/embed/${yt.key}?autoplay=1`);
         });
         setVideoUrl(null);
-        setPlayerState({
-            loading: false,
-            error: "",
-            stream: null,
-        });
     }, [id]);
 
     useEffect(() => {
@@ -82,7 +69,7 @@ export default function TvShowDetails() {
     const selectedEpisodeData = episodes.find(
         (episode) => episode.episode_number === selectedEpisode,
     );
-    const getAdSupportedTvUrl = () => `https://www.vidking.net/embed/tv/${id}/${selectedSeason}/${selectedEpisode}?color=e50914&autoPlay=true&nextEpisode=true&episodeSelector=true`;
+    const getTvPlayerUrl = () => `${(process.env.REACT_APP_PLAYER_BASE_URL || "https://vidsrc.sh").replace(/\/$/, "")}/embed/tv/${id}/${selectedSeason}/${selectedEpisode}?autoplay=1&autonext=1`;
     const showFacts = show ? [
         { label: "Original Name", value: show.original_name || show.name || "N/A" },
         { label: "Status", value: show.status || "N/A" },
@@ -92,80 +79,9 @@ export default function TvShowDetails() {
         { label: "Episode Length", value: formatRunTime(show.episode_run_time?.[0]) },
     ] : [];
 
-    useEffect(() => {
+    const handleWatch = () => {
         if (!show || !seasonDetails || !selectedEpisodeData) return;
-
-        const controller = new AbortController();
-        const params = new URLSearchParams({
-            type: "show",
-            tmdbId: String(show.id),
-            title: show.name,
-            releaseYear: String(
-                show.first_air_date ? Number(show.first_air_date.split("-")[0]) : new Date().getFullYear(),
-            ),
-            seasonNumber: String(selectedSeason),
-            seasonTmdbId: String(seasonDetails.id),
-            episodeNumber: String(selectedEpisode),
-            episodeTmdbId: String(selectedEpisodeData.id),
-        });
-
-        const API_URL = process.env.REACT_APP_API_URL || "";
-
-        const fetchPromise = fetch(`${API_URL}/api/scrape?${params.toString()}`, {
-            signal: controller.signal,
-        })
-        .then(async (response) => {
-            const data = await response.json();
-            return { ok: response.ok, data };
-        });
-
-        const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error("Scrape Timeout")), SCRAPE_TIMEOUT_MS);
-        });
-
-        // Safely swallow unhandled rejections natively (like AbortError on unmount or network fail)
-        scrapePromiseRef.current = Promise.race([fetchPromise, timeoutPromise]).catch(err => {
-            return { ok: false, data: { error: err.name === "AbortError" ? "aborted" : err.message } };
-        });
-
-        return () => {
-            controller.abort();
-            scrapePromiseRef.current = null;
-        };
-    }, [show, seasonDetails, selectedSeason, selectedEpisode, selectedEpisodeData]);
-
-    const handleWatch = async () => {
-        if (!show || !seasonDetails || !selectedEpisodeData) return;
-
-        setVideoUrl("scraped");
-        setPlayerState({
-            loading: true,
-            error: "",
-            stream: null,
-        });
-
-        try {
-            if (!scrapePromiseRef.current) throw new Error("Scrape not initialized");
-            
-            const { ok, data } = await scrapePromiseRef.current;
-
-            if (!ok) {
-                throw new Error(data?.error || "Failed to scrape episode");
-            }
-
-            setPlayerState({
-                loading: false,
-                error: "",
-                stream: data.stream,
-            });
-        } catch (error) {
-            setPlayerState({
-                loading: false,
-                error: "Free stream unavailable. Switched to ad-supported player.",
-                stream: null,
-            });
-            setVideoUrl(getAdSupportedTvUrl());
-        }
+        setVideoUrl(getTvPlayerUrl());
     };
 
     const handleClosePlayer = () => {
@@ -173,11 +89,6 @@ export default function TvShowDetails() {
         setTimeout(() => {
             setVideoUrl(null);
             setIsClosingPlayer(false);
-            setPlayerState({
-                loading: false,
-                error: "",
-                stream: null,
-            });
         }, 400);
     };
 
@@ -303,12 +214,12 @@ export default function TvShowDetails() {
                     </>
                 )}
 
-                {videoUrl && videoUrl !== "scraped" && (
+                {videoUrl && (
                     <div className={`video-player-container ${isClosingPlayer ? "closing" : ""}`}>
                         <div className="video-player-header">
                             <div>
-                                <p className="player-kicker">Trailer</p>
-                                <h2>{show.name}</h2>
+                                <p className="player-kicker">{videoUrl === trailer ? "Trailer" : "Series Episode"}</p>
+                                <h2>{videoUrl === trailer ? show.name : `${show.name} • S${selectedSeason}E${selectedEpisode}`}</h2>
                             </div>
                             <button className="close-player" onClick={handleClosePlayer}>Close Player</button>
                         </div>
@@ -322,30 +233,6 @@ export default function TvShowDetails() {
                                 allowFullScreen
                             />
                         </div>
-                    </div>
-                )}
-
-                {videoUrl === "scraped" && (
-                    <div className={`video-player-container ${isClosingPlayer ? "closing" : ""}`}>
-                        <div className="video-player-header">
-                            <div>
-                                <p className="player-kicker">Series Episode</p>
-                                <h2>{`${show.name} • S${selectedSeason}E${selectedEpisode}`}</h2>
-                            </div>
-                            <button className="close-player" onClick={handleClosePlayer}>Close Player</button>
-                        </div>
-
-                        {playerState.loading && <LoadingSpinner text="Scraping playable stream..." />}
-                        {playerState.error && <p className="player-error">{playerState.error}</p>}
-                        {playerState.stream && (
-                            <div className="video-player-wrapper">
-                                <DirectVideoPlayer
-                                    stream={playerState.stream}
-                                    poster={getImage(show.backdrop_path, "original")}
-                                    title={`${show.name} Episode ${selectedEpisode}`}
-                                />
-                            </div>
-                        )}
                     </div>
                 )}
 
