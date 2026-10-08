@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { searchMedia } from "../api";
 import MovieCard from "../components/MovieCard";
 import LoadingSpinner from "../components/LoadingSpinner";
 
@@ -20,15 +21,7 @@ export default function Search() {
     async function search(q) {
         setLoading(true);
         try {
-            const res = await fetch(
-                `https://api.themoviedb.org/3/search/multi?api_key=${process.env.REACT_APP_TMDB_KEY}&query=${q}`
-            );
-            const data = await res.json();
-            // Filter to only show movies and tv shows (exclude people, etc)
-            const filtered = (data.results || []).filter(
-                item => item.media_type === 'movie' || item.media_type === 'tv'
-            );
-            setResults(filtered);
+            setResults(await searchMedia(q));
         } catch (error) {
             console.error("Search failed:", error);
             setResults([]);
@@ -39,7 +32,7 @@ export default function Search() {
 
     return (
         <div className="search-page">
-            {query && <h2 style={{ marginBottom: '1rem' }}>Results for: "{query}"</h2>}
+            {query && <h2>Results for: "{query}"</h2>}
 
             {loading && <LoadingSpinner text="Searching..." />}
 
@@ -49,7 +42,7 @@ export default function Search() {
                 </div>
             )}
 
-            <div className="row-scroll">
+            <div className="search-grid">
                 {results.map(m => (
                     <MovieCard 
                         key={m.id} 

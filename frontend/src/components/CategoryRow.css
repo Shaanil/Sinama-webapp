@@ -1,12 +1,114 @@
-.category-row { padding: 1rem 2rem; }
-.category-row h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
-.row-scroll-wrapper { position: relative; }
-.row-scroll { display: flex; overflow-x: auto; gap: 1rem; padding-bottom: 1rem; }
-.row-scroll::-webkit-scrollbar { display: none; }
-.scroll-btn {
-    position: absolute; top: 50%; transform: translateY(-50%);
-    background: rgba(0,0,0,0.6); border: none; color: #fff;
-    font-size: 1.5rem; padding: 0.5rem; cursor: pointer; z-index: 10;
+.category-row {
+    width: 100%;
+    padding: 0;
+    margin: 1.5rem 0 3rem;
+    position: relative;
+    z-index: 1;
 }
-.scroll-btn.left { left: 0; }
-.scroll-btn.right { right: 0; }
+
+.category-row h2 {
+    font-size: 1.45rem;
+    margin: 0 0 0.8rem;
+    padding: 0 4rem;
+    font-weight: 700;
+    color: #e5e5e5;
+    position: relative;
+    z-index: 2;
+}
+
+.category-row-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+}
+
+.category-kicker {
+    display: none;
+}
+
+.category-description {
+    display: none;
+}
+
+.category-row-controls {
+    display: none;
+}
+
+.row-scroll-wrapper {
+    position: relative;
+}
+
+.row-scroll {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 0.4rem;
+    padding: 0.5rem 4rem;
+    scroll-behavior: smooth;
+}
+
+.row-scroll::-webkit-scrollbar { display: none; }
+
+.scroll-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4rem;
+    height: 100%;
+    background: rgba(20, 20, 20, 0.7);
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease, background 0.2s ease;
+}
+
+.row-scroll-wrapper:hover .scroll-btn {
+    opacity: 1;
+}
+
+.scroll-btn:hover {
+    background: rgba(20, 20, 20, 0.9);
+}
+
+.scroll-btn.left {
+    left: 0;
+}
+
+.scroll-btn.right {
+    right: 0;
+}
+
+.scroll-btn em {
+    font-style: normal;
+    font-weight: bold;
+    font-size: 2.5rem;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.2s ease;
+}
+
+.scroll-btn:hover em {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+@media (max-width: 768px) {
+    .category-row h2 {
+        font-size: 1.25rem;
+        padding: 0 1.5rem;
+    }
+
+    .row-scroll {
+        padding: 0.5rem 1.5rem;
+    }
+
+    .scroll-btn {
+        display: none;
+    }
+}

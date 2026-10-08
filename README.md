@@ -1,1 +1,4 @@
 # Sinama-webapp
+
+/frontend 
+/backend

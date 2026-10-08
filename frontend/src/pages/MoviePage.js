@@ -48,7 +48,7 @@ export default function MoviePage() {
                 ))}
             </div>
 
-            {/* Recommended */}
+            {/* Recommended*/}
             <h2>Recommended</h2>
             <div style={{display:'flex', overflowX:'auto', gap:'1rem', paddingBottom:'1rem'}}>
                 {recommended.map(m => <MovieCard key={m.id} movie={m} onClick={() => navigate(`/movie/${m.id}`)} />)}

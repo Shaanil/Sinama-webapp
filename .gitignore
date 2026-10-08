@@ -1,2 +1,30 @@
-.env
-frontend/public
+# Root dependencies
+/node_modules/
+
+# Root package output
+/*.tgz
+/*.tar.gz
+
+# Root environment files
+/.env
+/.env.local
+
+# Temporary folders
+/tmp/
+/temp/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
