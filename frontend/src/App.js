@@ -11,7 +11,9 @@ const Home = lazy(() => import("./pages/Home"));
 const TvShows = lazy(() => import("./pages/TvShows"));
 const Search = lazy(() => import("./pages/Search"));
 const MovieDetails = lazy(() => import("./pages/MovieDetails"));
+const Storyverse = lazy(() => import("./pages/Storyverse"));
 const TvShowDetails = lazy(() => import("./pages/TvShowDetails"));
+const PersonDetails = lazy(() => import("./pages/PersonDetails"));
 
 function App() {
     return (
@@ -24,8 +26,10 @@ function App() {
                             <Route path="/" element={<Home />} />
                             <Route path="/tv" element={<TvShows />} />
                             <Route path="/search" element={<Search />} />
+                            <Route path="/movie/:id/storyverse" element={<Storyverse />} />
                             <Route path="/movie/:id" element={<MovieDetails />} />
                             <Route path="/tv/:id" element={<TvShowDetails />} />
+                            <Route path="/person/:id" element={<PersonDetails />} />
                         </Routes>
                     </Suspense>
                 </Router>

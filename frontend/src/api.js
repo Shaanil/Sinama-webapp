@@ -45,7 +45,7 @@ export async function searchMedia(query) {
 
     const data = await fetchTmdb("/search/multi", { query });
     return (data.results || []).filter(
-        (item) => item.media_type === "movie" || item.media_type === "tv",
+        (item) => item.media_type === "movie" || item.media_type === "tv" || item.media_type === "person",
     );
 }
 

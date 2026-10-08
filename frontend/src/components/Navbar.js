@@ -10,7 +10,7 @@ export default function Navbar() {
 
     const handleSearch = () => {
         if (query.trim()) {
-            navigate(`/search?q=${query}`);
+            navigate(`/search?q=${encodeURIComponent(query.trim())}`);
             setIsSearchOpen(false); // Close on search
         } else {
             // Toggle open on empty search click (mobile)
@@ -39,7 +39,7 @@ export default function Navbar() {
                     <div className={`search-bar ${isSearchOpen ? "open" : ""}`}>
                         <input
                             type="text"
-                            placeholder="Search movies..."
+                            placeholder="Search movies, shows, people..."
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             onKeyDown={handleKeyPress}

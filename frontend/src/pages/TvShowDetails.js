@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { fetchMovies, getImage } from "../api";
 import DirectVideoPlayer from "../components/DirectVideoPlayer";
 import MovieCard from "../components/MovieCard";
@@ -353,10 +353,11 @@ export default function TvShowDetails() {
                     <h2>Cast</h2>
                     <div className="row-scroll">
                         {cast.map(actor => (
-                            <div key={actor.id} className="cast-card">
+                            <Link key={actor.id} to={`/person/${actor.id}`} className="cast-card">
                                 <img src={getImage(actor.profile_path)} alt={actor.name} />
                                 <p>{actor.name}</p>
-                            </div>
+                                {actor.character && <span>{actor.character}</span>}
+                            </Link>
                         ))}
                     </div>
                 </div>
