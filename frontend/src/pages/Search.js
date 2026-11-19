@@ -11,24 +11,35 @@ export default function Search() {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (query) {
-            search(query);
-        } else {
-            setResults([]);
-        }
-    }, [query]);
+        let cancelled = false;
 
-    async function search(q) {
-        setLoading(true);
-        try {
-            setResults(await searchMedia(q));
-        } catch (error) {
-            console.error("Search failed:", error);
+        if (!query) {
             setResults([]);
-        } finally {
             setLoading(false);
+            return undefined;
         }
-    }
+
+        setResults([]);
+        setLoading(true);
+
+        searchMedia(query)
+            .then((data) => {
+                if (!cancelled) setResults(data);
+            })
+            .catch((error) => {
+                if (!cancelled) {
+                    console.error("Search failed:", error);
+                    setResults([]);
+                }
+            })
+            .finally(() => {
+                if (!cancelled) setLoading(false);
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [query]);
 
     return (
         <div className="search-page">
